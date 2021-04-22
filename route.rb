@@ -19,6 +19,7 @@ class Route
     @stations = [initial_station, end_station]
     @route_name = "#{@stations[0].name}-#{@stations[1].name}"
     @@instances[@route_name] = self
+    @type_class = self.class
 
     init_validations
     validate!
@@ -27,7 +28,7 @@ class Route
 
   def init_validations
     self.class.validate @route_name, :presence
-    self.class.validate @type_class, :type, 'Route'
+    self.class.validate @type_class, :type, self.class
   end
 
   def add_station(station)

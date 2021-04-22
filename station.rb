@@ -21,13 +21,14 @@ class Station
     validate!
     @trains = []
     @@instances[name] = self
+    @type_class = self.class
 
     register_instance
   end
 
   def init_validations
     self.class.validate @name,       :presence
-    self.class.validate @type_class, :type, 'Station'
+    self.class.validate @type_class, :type, self.class
   end
 
   def get_trains(block)

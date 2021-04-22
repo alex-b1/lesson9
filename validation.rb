@@ -7,34 +7,20 @@ module Validation
   end
 
   module ClassMethods
-    def validate(name, type, *args)
-      instance_variable_set('@validations', []) unless instance_variable_defined?('@validations')
-      if type == :presence
-        method = lambda do
-          raise 'Не верное значение' if name.nil? || name.empty?
-        end
-        @validations.push(method)
-      end
-      if type == :format
-        method = lambda do
-          raise 'Не верный формат' unless name =~ args[0]
-        end
-        @validations.push(method)
-      end
-      if type == :type
-        method = lambda do
-          raise 'Не соответствует классу' if name.instance_of?(args[0])
-        end
-        @validations.push(method)
-      end
+    def validate(name, *args)
+      instance_variable_set('@validations', {}) unless instance_variable_defined?('@validations')
+      instance_variable_get('@validations')[name] = *args
     end
   end
 
   module InstanceMethods
     def validate!
-      self.class.instance_variable_get('@validations').each(&:call)
+      self.class.instance_variable_get('@validations').each do |i, args|
+        puts args[0]
+        send("validate_#{args[0]}", i, args[1])
+      end
     ensure
-      self.class.instance_variable_set('@validations', [])
+      self.class.instance_variable_set('@validations', {})
     end
 
     def valid?
@@ -43,6 +29,18 @@ module Validation
     rescue StandardError => e
       puts "Ошибка: #{e.message}"
       false
+    end
+
+    def validate_presence(name)
+      raise 'Не верное значение' if name.nil? || name.empty?
+    end
+
+    def validate_format(name, format)
+      raise 'Не верный формат' unless name =~ format
+    end
+
+    def validate_type(name, type)
+      raise 'Не соответствует классу' if name.instance_of?(type)
     end
   end
 end

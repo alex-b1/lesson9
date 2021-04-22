@@ -34,9 +34,8 @@ class Train
   end
 
   def init_validations
-    self.class.validate @number,       :presence
     self.class.validate @number,       :format, NUMBER_FORMAT
-    self.class.validate @type_class, :type, 'Train'
+    self.class.validate @type_class,   :type, self.class
   end
 
   def carriages_list(block)
